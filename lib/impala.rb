@@ -1,11 +1,15 @@
+
+# the generated ruby files use a relative require, so we need to add the
+# generated directory to $LOAD_PATH
 this_dir = File.expand_path(File.dirname(__FILE__))
-gen_dir = File.join(this_dir, 'impala', 'protocol')
-$LOAD_PATH.unshift(gen_dir) unless $LOAD_PATH.include?(gen_dir)
+gen_dir = File.join(this_dir, 'impala/protocol')
+$LOAD_PATH.push(gen_dir) unless $LOAD_PATH.include?(gen_dir)
 
 require 'impala/version'
 
 require 'thrift'
 require 'impala/protocol'
+require 'impala/cursor'
 require 'impala/connection'
 
 module Impala

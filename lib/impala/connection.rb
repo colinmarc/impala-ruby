@@ -16,7 +16,6 @@ module Impala
     }
     QUERY_CONFIG = QUERY_OPTS.map { |k,v| "#{k}=#{v}" }
     SLEEP_INTERVAL = 0.5
-    FETCH_SIZE = 1024
 
     def initialize(host='localhost', port=21000)
       @host = host
@@ -46,21 +45,21 @@ module Impala
       @connected
     end
 
-    def execute(query, opts={})
-      words = query.split
+    def query(raw_query, opts={})
+      execute(raw_query, opts).to_a
+    end
 
-      unless KNOWN_COMMANDS.include?(words.first)
+    def execute(raw_query, opts={})
+      words = raw_query.split
+
+      unless KNOWN_COMMANDS.include?(words.first.downcase)
         raise InvalidQueryException.new("Unrecognized command: #{words.first}")
       end
 
-      query = create_query(query, opts)
+      query = create_query(raw_query.downcase, opts)
       handle = @service.query(query)
 
-      @last_result = get_results(handle)
-    end
-
-    def last_result
-      @last_result
+      create_cursor(handle)
     end
 
     private
@@ -78,57 +77,18 @@ module Impala
       query
     end
 
-    def get_results(handle)
+    def create_cursor(handle)
       #TODO select here, or something
       while true
         state = @service.get_state(handle)
         if state == Protocol::Beeswax::QueryState::FINISHED
-          return fetch_results(handle)
+          return Cursor.new(handle, @service)
         elsif state == Protocol::Beeswax::QueryState::EXCEPTION
           close_handle(handle)
           raise "something went wrong" #TODO
         end
 
         sleep(SLEEP_INTERVAL)
-      end
-    end
-
-    def fetch_results(handle)
-      metadata = @service.get_results_metadata(handle)
-      result_rows = []
-
-      while true
-        res = @service.fetch(handle, false, FETCH_SIZE)
-        rows = res.data.map { |raw| parse_row(raw, metadata) }
-        result_rows += rows
-
-        break unless res.has_more
-      end
-
-      result_rows
-    end
-
-    def parse_row(raw, metadata)
-      row = {}
-      fields = raw.split(metadata.delim)
-
-      fields.zip(metadata.schema.fieldSchemas).each do |raw_value, schema|
-        value = convert_raw_value(raw_value, schema)
-        row[schema.name.to_sym] = value
-      end
-
-      row
-    end
-
-
-    def convert_raw_value(value, schema)
-      case schema.type
-      when 'string'
-        value
-      when 'int', 'bigint'
-        value.to_i
-      else
-        raise "Unknown type: #{schema.type}" #TODO
       end
     end
 
