@@ -15,7 +15,7 @@ module Impala
   def self.with_connection(host='localhost', port=21000)
     connection = Connection.new(host, port)
     yield connection
-    connection.close!
+    connection.close
 
     connection.last_result
   end

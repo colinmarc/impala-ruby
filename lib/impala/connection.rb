@@ -65,11 +65,15 @@ module Impala
 
     private
 
-    def create_query(sanitized_query, opts)
+    def sanitize_query(raw)
+      #TODO?
+      raw
+    end
+
+    def create_query(raw_query, opts)
       query = Protocol::Beeswax::Query.new
-      query.query = sanitized_query
+      query.query = sanitize_query(raw_query)
       query.configuration = QUERY_CONFIG
-      puts query.inspect
 
       query
     end
@@ -90,8 +94,42 @@ module Impala
     end
 
     def fetch_results(handle)
-      #TODO this won't load all the results
-      @service.fetch(handle, false, FETCH_SIZE)
+      metadata = @service.get_results_metadata(handle)
+      result_rows = []
+
+      while true
+        res = @service.fetch(handle, false, FETCH_SIZE)
+        rows = res.data.map { |raw| parse_row(raw, metadata) }
+        result_rows += rows
+
+        break unless res.has_more
+      end
+
+      result_rows
+    end
+
+    def parse_row(raw, metadata)
+      row = {}
+      fields = raw.split(metadata.delim)
+
+      fields.zip(metadata.schema.fieldSchemas).each do |raw_value, schema|
+        value = convert_raw_value(raw_value, schema)
+        row[schema.name.to_sym] = value
+      end
+
+      row
+    end
+
+
+    def convert_raw_value(value, schema)
+      case schema.type
+      when 'string'
+        value
+      when 'int', 'bigint'
+        value.to_i
+      else
+        raise "Unknown type: #{schema.type}" #TODO
+      end
     end
 
     def close_handle(handle)
