@@ -46,7 +46,7 @@ struct Type {
   1: string          name,             // one of the types in PrimitiveTypes or CollectionTypes or User defined types
   2: optional string type1,            // object type if the name is 'list' (LIST_TYPE), key type if the name is 'map' (MAP_TYPE)
   3: optional string type2,            // val type if the name is 'map' (MAP_TYPE)
-  4: optional list<FieldSchema> fields // if the name is one of the user defined types
+  //4: optional list<FieldSchema> fields // if the name is one of the user defined types
 }
 
 enum HiveObjectType {

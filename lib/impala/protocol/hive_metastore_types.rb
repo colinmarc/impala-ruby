@@ -77,13 +77,11 @@ module Impala
         NAME = 1
         TYPE1 = 2
         TYPE2 = 3
-        FIELDS = 4
 
         FIELDS = {
         NAME => { :type => ::Thrift::Types::STRING, :name => 'name' },
         TYPE1 => { :type => ::Thrift::Types::STRING, :name => 'type1', :optional => true },
-        TYPE2 => { :type => ::Thrift::Types::STRING, :name => 'type2', :optional => true },
-        FIELDS => { :type => ::Thrift::Types::LIST, :name => 'fields', :element => { :type => ::Thrift::Types::STRUCT, :class => Impala::Protocol::HiveMetastore::FieldSchema }, :optional => true }
+        TYPE2 => { :type => ::Thrift::Types::STRING, :name => 'type2', :optional => true }
         }
 
         def struct_fields; FIELDS; end
