@@ -3,6 +3,8 @@ gen_dir = File.join(this_dir, 'impala', 'protocol')
 $LOAD_PATH.unshift(gen_dir) unless $LOAD_PATH.include?(gen_dir)
 
 require 'impala/version'
+
+require 'thrift'
 require 'impala/protocol'
 require 'impala/connection'
 
@@ -11,9 +13,9 @@ module Impala
   class InvalidQueryException < Exception; end
 
   def self.with_connection(host='localhost', port=21000)
-    connection = Connection.new
+    connection = Connection.new(host, port)
     yield connection
-    connection.close
+    connection.close!
 
     connection.last_result
   end
