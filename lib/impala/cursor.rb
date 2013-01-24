@@ -73,11 +73,23 @@ module Impala
     end
 
     def convert_raw_value(value, schema)
+      return nil if value == 'NULL'
+
       case schema.type
       when 'string'
         value
+      when 'boolean'
+        if value == 'true'
+          true
+        elsif value == 'false'
+          false
+        else
+          raise "Invalid value for boolean: #{value}"
+        end
       when 'tinyint', 'int', 'bigint'
         value.to_i
+      when 'double'
+        value.to_f
       else
         raise "Unknown type: #{schema.type}" #TODO
       end
