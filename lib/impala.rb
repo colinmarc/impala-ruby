@@ -16,6 +16,7 @@ module Impala
   KNOWN_COMMANDS = ['select', 'show', 'describe', 'use']
   class InvalidQueryError < StandardError; end
   class ConnectionError < StandardError; end
+  class CursorError < StandardError; end
 
   def self.connect(host='localhost', port=21000)
     connection = Connection.new(host, port)

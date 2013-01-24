@@ -9,7 +9,9 @@ module Impala
 
       @buffer_length = buffer_length
       @row_buffer = []
+
       @done = false
+      @closed = false
     end
 
     def each
@@ -19,6 +21,8 @@ module Impala
     end
 
     def fetch_row
+      raise CursorError.new("Cursor has expired or been closed") if @closed
+
       if @row_buffer.empty?
         if @done
           return nil
@@ -34,15 +38,25 @@ module Impala
       self.to_a
     end
 
+    def close
+      @closed = true
+      @service.close(@handle)
+    end
+
     private
 
     def fetch_more
       return if @done
 
-      res = @service.fetch(@handle, false, @buffer_length)
+      begin
+        res = @service.fetch(@handle, false, @buffer_length)
+      rescue Protocol::Beeswax::BeeswaxException => e
+        @closed = true
+        raise CursorError.new("Cursor has expired or been closed")
+      end
+
       rows = res.data.map { |raw| parse_row(raw) }
       @row_buffer.concat(rows)
-
       @done = true unless res.has_more
     end
 

@@ -32,7 +32,7 @@ module Impala
     end
 
     def query(raw_query)
-      execute(raw_query).to_a
+      execute(raw_query).fetch_all
     end
 
     def execute(raw_query)
@@ -75,7 +75,7 @@ module Impala
             break
           elsif state == Protocol::Beeswax::QueryState::EXCEPTION
             close_handle(handle)
-            raise "something went wrong" #TODO
+            raise ConnectionError.new("The query was aborted")
           end
 
           sleep(SLEEP_INTERVAL)
