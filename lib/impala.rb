@@ -13,7 +13,7 @@ require 'impala/cursor'
 require 'impala/connection'
 
 module Impala
-  KNOWN_COMMANDS = ['select']
+  KNOWN_COMMANDS = ['select', 'show', 'describe', 'use']
   class InvalidQueryException < Exception; end
 
   def self.with_connection(host='localhost', port=21000)

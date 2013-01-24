@@ -2,10 +2,11 @@ module Impala
   class Cursor
     include Enumerable
 
-    #TODO should probably take the connection rather than the service
     def initialize(handle, service, buffer_length=1024)
       @handle = handle
       @service = service
+      @metadata = @service.get_results_metadata(@handle)
+
       @buffer_length = buffer_length
       @row_buffer = []
       @done = false
@@ -35,10 +36,6 @@ module Impala
 
     private
 
-    def metadata
-      @metadata ||= @service.get_results_metadata(@handle)
-    end
-
     def fetch_more
       return if @done
 
@@ -51,9 +48,9 @@ module Impala
 
     def parse_row(raw)
       row = {}
-      fields = raw.split(metadata.delim)
+      fields = raw.split(@metadata.delim)
 
-      fields.zip(metadata.schema.fieldSchemas).each do |raw_value, schema|
+      fields.zip(@metadata.schema.fieldSchemas).each do |raw_value, schema|
         value = convert_raw_value(raw_value, schema)
         row[schema.name.to_sym] = value
       end

@@ -53,7 +53,7 @@ module Impala
       words = raw_query.split
 
       unless KNOWN_COMMANDS.include?(words.first.downcase)
-        raise InvalidQueryException.new("Unrecognized command: #{words.first}")
+        raise InvalidQueryException.new("Unrecognized command: '#{words.first}'")
       end
 
       query = create_query(raw_query.downcase, opts)
