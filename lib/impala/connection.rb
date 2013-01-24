@@ -1,21 +1,6 @@
 module Impala
   class Connection
-    #TODO do something smarter for config here
-    #TODO figure out what these do
-    QUERY_OPTS = {
-      "DISABLE_CODEGEN"=>"false",
-      "MAX_IO_BUFFERS"=>"0",
-      "ABORT_ON_ERROR"=>"false",
-      "BATCH_SIZE"=>"0",
-      "NUM_SCANNER_THREADS"=>"0",
-      "ALLOW_UNSUPPORTED_FORMATS"=>"false",
-      "MAX_ERRORS"=>"0",
-      "NUM_NODES"=>"0",
-      "DEFAULT_ORDER_BY_LIMIT"=>"-1",
-      "MAX_SCAN_RANGE_LENGTH"=>"0"
-    }
-    QUERY_CONFIG = QUERY_OPTS.map { |k,v| "#{k}=#{v}" }
-    SLEEP_INTERVAL = 0.5
+    SLEEP_INTERVAL = 0.1
 
     def initialize(host='localhost', port=21000)
       @host = host
@@ -29,66 +14,75 @@ module Impala
 
       socket = Thrift::Socket.new(@host, @port)
 
-      transport = Thrift::BufferedTransport.new(socket)
-      transport.open
+      @transport = Thrift::BufferedTransport.new(socket)
+      @transport.open
 
-      proto = Thrift::BinaryProtocol.new(transport)
+      proto = Thrift::BinaryProtocol.new(@transport)
       @service = Protocol::ImpalaService::Client.new(proto)
       @connected = true
     end
 
     def close
-      #TODO
+      @transport.close
+      @connected = false
     end
 
     def open?
       @connected
     end
 
-    def query(raw_query, opts={})
-      execute(raw_query, opts).to_a
+    def query(raw_query)
+      execute(raw_query).to_a
     end
 
-    def execute(raw_query, opts={})
-      words = raw_query.split
+    def execute(raw_query)
+      raise ConnectionError.new("Connection closed") unless open?
 
-      unless KNOWN_COMMANDS.include?(words.first.downcase)
-        raise InvalidQueryException.new("Unrecognized command: '#{words.first}'")
+      words = raw_query.split
+      if words.empty?
+        raise InvalidQueryError.new("Empty query")
+      elsif !KNOWN_COMMANDS.include?(words.first.downcase)
+        raise InvalidQueryError.new("Unrecognized command: '#{words.first}'")
       end
 
-      query = create_query(raw_query.downcase, opts)
-      handle = @service.query(query)
+      query = sanitize_query(raw_query)
+      handle = send_query(query)
 
-      create_cursor(handle)
+      wait_for_result(handle)
+      Cursor.new(handle, @service)
     end
 
     private
 
     def sanitize_query(raw)
       #TODO?
-      raw
+      raw.downcase
     end
 
-    def create_query(raw_query, opts)
+    def send_query(sanitized_query)
       query = Protocol::Beeswax::Query.new
-      query.query = sanitize_query(raw_query)
-      query.configuration = QUERY_CONFIG
+      query.query = sanitized_query
 
-      query
+      @service.query(query)
     end
 
-    def create_cursor(handle)
-      #TODO select here, or something
-      while true
-        state = @service.get_state(handle)
-        if state == Protocol::Beeswax::QueryState::FINISHED
-          return Cursor.new(handle, @service)
-        elsif state == Protocol::Beeswax::QueryState::EXCEPTION
-          close_handle(handle)
-          raise "something went wrong" #TODO
-        end
+    def wait_for_result(handle)
+      begin
+        #TODO select here, or something
+        while true
+          state = @service.get_state(handle)
+          if state == Protocol::Beeswax::QueryState::FINISHED
+            break
+          elsif state == Protocol::Beeswax::QueryState::EXCEPTION
+            close_handle(handle)
+            raise "something went wrong" #TODO
+          end
 
-        sleep(SLEEP_INTERVAL)
+          sleep(SLEEP_INTERVAL)
+        end
+      rescue Interrupt
+        close_handle(handle)
+        raise
       end
     end
 

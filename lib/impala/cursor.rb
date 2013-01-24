@@ -62,7 +62,7 @@ module Impala
       case schema.type
       when 'string'
         value
-      when 'int', 'bigint'
+      when 'tinyint', 'int', 'bigint'
         value.to_i
       else
         raise "Unknown type: #{schema.type}" #TODO

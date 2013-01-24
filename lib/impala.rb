@@ -14,13 +14,19 @@ require 'impala/connection'
 
 module Impala
   KNOWN_COMMANDS = ['select', 'show', 'describe', 'use']
-  class InvalidQueryException < Exception; end
+  class InvalidQueryError < StandardError; end
+  class ConnectionError < StandardError; end
 
-  def self.with_connection(host='localhost', port=21000)
+  def self.connect(host='localhost', port=21000)
     connection = Connection.new(host, port)
-    yield connection
-    connection.close
 
-    connection.last_result
+    if block_given?
+      ret = yield connection
+      connection.close
+    else
+      ret = connection
+    end
+
+    ret
   end
 end
