@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["colinmarc@gmail.com"]
   gem.description   = %q{A ruby client for Cloudera's Impala}
   gem.summary       = %q{A ruby client for Cloudera's Impala}
-  gem.homepage      = "github.com/colinmarc/impala-ruby"
+  gem.homepage      = "https://github.com/colinmarc/impala-ruby"
 
   gem.add_dependency('thrift', '~> 0.9')
 
