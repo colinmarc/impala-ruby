@@ -1,6 +1,6 @@
 # impala-ruby
 
-This is an impala client for ruby. You use it like this:
+This is an ruby client for [Cloudera's Impala][1]. You use it like this:
 
 ```ruby
 require 'impala'
@@ -24,3 +24,5 @@ end
 
 conn.close
 ```
+
+[1]: https://ccp.cloudera.com/display/IMPALA10BETADOC/Introducing+Cloudera+Impala
