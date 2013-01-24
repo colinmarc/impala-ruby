@@ -8,9 +8,9 @@ Gem::Specification.new do |gem|
   gem.version       = Impala::VERSION
   gem.authors       = ["Colin Marc"]
   gem.email         = ["colinmarc@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{A ruby client for Cloudera's Impala}
+  gem.summary       = %q{A ruby client for Cloudera's Impala}
+  gem.homepage      = "github.com/colinmarc/impala-ruby"
 
   gem.add_dependency('thrift', '~> 0.9')
 
