@@ -84,14 +84,14 @@ module Impala
         elsif value == 'false'
           false
         else
-          raise "Invalid value for boolean: #{value}"
+          raise ParsingError.new("Invalid value for boolean: #{value}")
         end
       when 'tinyint', 'int', 'bigint'
         value.to_i
       when 'double'
         value.to_f
       else
-        raise "Unknown type: #{schema.type}" #TODO
+        raise ParsingError.new("Unknown type: #{schema.type}")
       end
     end
   end

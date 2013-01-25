@@ -2,7 +2,7 @@ module Impala
   class Connection
     SLEEP_INTERVAL = 0.1
 
-    def initialize(host='localhost', port=21000)
+    def initialize(host, port)
       @host = host
       @port = port
       @connected = false
@@ -67,23 +67,21 @@ module Impala
     end
 
     def wait_for_result(handle)
-      begin
-        #TODO select here, or something
-        while true
-          state = @service.get_state(handle)
-          if state == Protocol::Beeswax::QueryState::FINISHED
-            break
-          elsif state == Protocol::Beeswax::QueryState::EXCEPTION
-            close_handle(handle)
-            raise ConnectionError.new("The query was aborted")
-          end
-
-          sleep(SLEEP_INTERVAL)
+      #TODO select here, or something
+      while true
+        state = @service.get_state(handle)
+        if state == Protocol::Beeswax::QueryState::FINISHED
+          break
+        elsif state == Protocol::Beeswax::QueryState::EXCEPTION
+          close_handle(handle)
+          raise ConnectionError.new("The query was aborted")
         end
-      rescue Interrupt
-        close_handle(handle)
-        raise
+
+        sleep(SLEEP_INTERVAL)
       end
+    rescue
+      close_handle(handle)
+      raise
     end
 
     def close_handle(handle)
