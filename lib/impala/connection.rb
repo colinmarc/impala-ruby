@@ -38,13 +38,6 @@ module Impala
     def execute(raw_query)
       raise ConnectionError.new("Connection closed") unless open?
 
-      words = raw_query.split
-      if words.empty?
-        raise InvalidQueryError.new("Empty query")
-      elsif !KNOWN_COMMANDS.include?(words.first.downcase)
-        raise InvalidQueryError.new("Unrecognized command: '#{words.first}'")
-      end
-
       query = sanitize_query(raw_query)
       handle = send_query(query)
 
@@ -54,9 +47,16 @@ module Impala
 
     private
 
-    def sanitize_query(raw)
-      #TODO?
-      raw.downcase
+    def sanitize_query(raw_query)
+      words = raw_query.split
+      raise InvalidQueryError.new("Empty query") if words.empty?
+
+      command = words.first.downcase
+      if !KNOWN_COMMANDS.include?(command)
+        raise InvalidQueryError.new("Unrecognized command: '#{words.first}'")
+      end
+
+      ([command] + words[1..-1]).join(' ')
     end
 
     def send_query(sanitized_query)
