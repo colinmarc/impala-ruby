@@ -1,5 +1,15 @@
 require "bundler/gem_tasks"
 
+task :default => [:test]
+
+task :test do
+  ret = true
+  Dir["test/**/*.rb"].each do |f|
+    ret = ret && ruby(f, '')
+  end
+  exit(ret)
+end
+
 THRIFT_FILES = FileList['./thrift/*.thrift']
 GENNED_FILES = FileList['./lib/impala/protocol/*']
 
