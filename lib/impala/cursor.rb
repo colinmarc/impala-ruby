@@ -11,7 +11,11 @@ module Impala
       @row_buffer = []
 
       @done = false
-      @closed = false
+      @open = true
+    end
+
+    def inspect
+      "#<#{self.class}#{open? ? '' : ' (CLOSED)'}>"
     end
 
     def each
@@ -21,7 +25,7 @@ module Impala
     end
 
     def fetch_row
-      raise CursorError.new("Cursor has expired or been closed") if @closed
+      raise CursorError.new("Cursor has expired or been closed") unless @open
 
       if @row_buffer.empty?
         if @done
@@ -39,8 +43,16 @@ module Impala
     end
 
     def close
-      @closed = true
+      @open = false
       @service.close(@handle)
+    end
+
+    def open?
+      @open
+    end
+
+    def has_more?
+      !@done || !@row_buffer.empty?
     end
 
     private

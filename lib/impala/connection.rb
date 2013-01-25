@@ -9,6 +9,10 @@ module Impala
       open
     end
 
+    def inspect
+      "#<#{self.class} #{@host}:#{@port}#{open? ? '' : ' (DISCONNECTED)'}>"
+    end
+
     def open
       return if @connected
 
