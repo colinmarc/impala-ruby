@@ -12,6 +12,7 @@ end
 THRIFT_FILES = FileList['./thrift/*.thrift']
 GENNED_FILES = FileList['./lib/impala/protocol/*']
 
+# eden only works on 1.8, unfortunately =(
 task :gen do
   THRIFT_FILES.each do |f|
     sh "thrift -out lib/impala/protocol --gen rb #{f}"
