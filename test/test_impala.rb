@@ -54,7 +54,7 @@ describe Impala::Connection do
       @connection.instance_variable_set('@service', @service)
     end
 
-    it 'should close the handle if an exception is raised' do
+    it 'should close the handle if an exception is raised, and then re-raise' do
       handle = stub()
       @service.expects(:close).with(handle).once
       @service.expects(:get_state).raises(StandardError)
