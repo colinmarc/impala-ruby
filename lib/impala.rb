@@ -22,7 +22,7 @@ module Impala
   class ParsingError < StandardError; end
 
   # Connect to an Impala server. If a block is given, it will close the
-  # connection after calling the block with the collection.
+  # connection after yielding the connection to the block.
   # @param [String] host the hostname or IP address of the Impala server
   # @param [int] port the port that the Impala server is listening on
   # @yieldparam [Connection] conn the open connection. Will be closed once the block
