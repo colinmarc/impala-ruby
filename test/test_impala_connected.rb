@@ -23,6 +23,7 @@ describe 'connected tests' do
   end
 
   it 'can successfully connect' do
+    assert_instance_of(Impala::Connection, @connection)
     assert(@connection.open?, "the connection should be open")
   end
 
@@ -35,7 +36,7 @@ describe 'connected tests' do
   # with a literal select. perhaps there should be importable test data?
   it 'can get a cursor and fetch one row at a time' do
     cursor = @connection.execute('SELECT 1 AS a')
-    assert_instance_of(Impala::Cursor, cursor)
+    assert_instance_of(Impala::Cursor, cursor, "the result should be a cursor")
 
     row = cursor.fetch_row
     assert_equal({:a=>1}, row, "the row should be a hash")
