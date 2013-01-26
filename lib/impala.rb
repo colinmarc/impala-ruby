@@ -21,6 +21,14 @@ module Impala
   class CursorError < StandardError; end
   class ParsingError < StandardError; end
 
+  # Connect to an Impala server. If a block is given, it will close the
+  # connection after calling the block with the collection.
+  # @param [String] host the hostname or IP address of the Impala server
+  # @param [int] port the port that the Impala server is listening on
+  # @yieldparam [Connection] conn the open connection. Will be closed once the block
+  #    finishes
+  # @return [Connection] the open connection, or, if a block is
+  #    passed, the return value of the block
   def self.connect(host=DEFAULT_HOST, port=DEFAULT_PORT)
     connection = Connection.new(host, port)
 

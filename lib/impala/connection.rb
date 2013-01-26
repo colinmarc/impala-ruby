@@ -1,7 +1,10 @@
 module Impala
+  # This object represents a connection to an Impala server. It can be used to
+  # perform queries on the database.
   class Connection
     SLEEP_INTERVAL = 0.1
 
+    # Don't instantiate Connections directly; instead, use {Impala.connect}.
     def initialize(host, port)
       @host = host
       @port = port
@@ -13,6 +16,7 @@ module Impala
       "#<#{self.class} #{@host}:#{@port}#{open? ? '' : ' (DISCONNECTED)'}>"
     end
 
+    # Open the connection if it's currently closed.
     def open
       return if @connected
 
@@ -26,19 +30,31 @@ module Impala
       @connected = true
     end
 
+    # Close this connection. It can still be reopened with {#open}.
     def close
+      return unless @connected
+
       @transport.close
       @connected = false
     end
 
+    # Returns true if the connection is currently open.
     def open?
       @connected
     end
 
+    # Perform a query and return all the results. This will
+    # load the entire result set into memory, so if you're dealing with lots
+    # of rows, {#execute} may work better.
+    # @param [String] query the query you want to run
+    # @return [Array<Hash>] an array of hashes, one for each row.
     def query(raw_query)
       execute(raw_query).fetch_all
     end
 
+    # Perform a query and return a cursor for iterating over the results.
+    # @param [String] query the query you want to run
+    # @return [Cursor] a cursor for the result rows
     def execute(raw_query)
       raise ConnectionError.new("Connection closed") unless open?
 
