@@ -1,13 +1,12 @@
 require "bundler/gem_tasks"
+require "rake/testtask"
 
 task :default => [:test]
 
-task :test do
-  ret = true
-  Dir["test/**/*.rb"].each do |f|
-    ret = ret && ruby(f, '')
-  end
-  exit(ret)
+Rake::TestTask.new do |t|
+  t.libs.push "lib"
+  t.test_files = FileList['test/test_*.rb']
+  t.verbose = true
 end
 
 THRIFT_FILES = FileList['./thrift/*.thrift']
