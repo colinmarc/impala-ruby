@@ -116,6 +116,8 @@ module Impala
         value.to_i
       when 'double'
         value.to_f
+      when "timestamp"
+        Time.parse(value)
       else
         raise ParsingError.new("Unknown type: #{schema.type}")
       end

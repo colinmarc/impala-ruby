@@ -8,6 +8,7 @@ $LOAD_PATH.push(gen_dir) unless $LOAD_PATH.include?(gen_dir)
 require 'impala/version'
 
 require 'thrift'
+require 'time'
 require 'impala/protocol'
 require 'impala/cursor'
 require 'impala/connection'
