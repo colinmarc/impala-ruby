@@ -114,7 +114,7 @@ module Impala
         end
       when 'tinyint', 'int', 'bigint'
         value.to_i
-      when 'double'
+      when 'double', 'float'
         value.to_f
       when "timestamp"
         Time.parse(value)
