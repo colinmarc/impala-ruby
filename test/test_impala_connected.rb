@@ -64,4 +64,8 @@ describe 'connected tests' do
     assert_equal(false, cursor.has_more?, "has_more? should be false")
     assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
   end
+
+  it 'can successfully run a "use" query' do
+    @connection.query('USE foo')
+  end
 end
