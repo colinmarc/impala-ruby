@@ -28,8 +28,28 @@ describe 'connected tests' do
   end
 
   it 'can run a basic query' do
-    ret = @connection.query('SELECT 1 AS a')
-    assert_equal([{:a=>1}], ret, "the result should be a list of hashes")
+    ret = @connection.query('SELECT "foo" AS foo')
+    assert_equal([{:foo=>'foo'}], ret, "the result should be a list of hashes")
+  end
+
+  it 'can handle boolean values' do
+    ret = @connection.query('SELECT TRUE AS foo')
+    assert_equal([{:foo=>true}], ret, "the result should be a bool")
+  end
+
+  it 'can handle double values' do
+    ret = @connection.query("SELECT 1.23 AS foo")
+    assert_equal([{:foo=>1.23}], ret, "the result should be a float")
+  end
+
+  it 'can handle float values' do
+    ret = @connection.query("SELECT CAST(1.23 AS float) as foo")
+    assert_instance_of(Float, ret.first[:foo], "the result should be a float")
+  end
+
+  it 'can handle timestamp values' do
+    ret = @connection.query("SELECT NOW() AS foo")
+    assert_instance_of(Time, ret.first[:foo])
   end
 
   # TODO: this test sucks because there's no way to get multiple records
