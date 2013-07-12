@@ -52,6 +52,10 @@ describe 'connected tests' do
     assert_instance_of(Time, ret.first[:foo])
   end
 
+  it 'can successfully refresh the metadata store' do
+    ret = @connection.refresh
+  end
+
   # TODO: this test sucks because there's no way to get multiple records
   # with a literal select. perhaps there should be importable test data?
   it 'can get a cursor and fetch one row at a time' do
