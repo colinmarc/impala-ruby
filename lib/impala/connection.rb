@@ -43,6 +43,12 @@ module Impala
       @connected
     end
 
+    # Refresh the metadata store
+    def refresh
+      raise ConnectionError.new("Connection closed") unless open?
+      @service.ResetCatalog
+    end
+
     # Perform a query and return all the results. This will
     # load the entire result set into memory, so if you're dealing with lots
     # of rows, {#execute} may work better.
