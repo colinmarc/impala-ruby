@@ -75,6 +75,10 @@ module Impala
     end
 
     def fetch_more
+      fetch_batch until @done || @row_buffer.count >= BUFFER_SIZE
+    end
+
+    def fetch_batch
       return if @done
 
       begin
