@@ -15,7 +15,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency('thrift', '~> 0.9.1')
 
   gem.add_development_dependency('rake')
-  gem.add_development_dependency('eden')
   gem.add_development_dependency('pry')
 
   gem.add_development_dependency('minitest')
