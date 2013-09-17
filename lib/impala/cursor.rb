@@ -3,15 +3,15 @@ module Impala
   # into memory at once. This can be useful if you're dealing with lots of
   # rows. It implements Enumerable, so you can use each/select/map/etc.
   class Cursor
+    BUFFER_SIZE = 1024
     include Enumerable
 
-    def initialize(handle, service, buffer_length=1024)
+    def initialize(handle, service)
       @handle = handle
       @service = service
 
-      @buffer_length = buffer_length
-      @row_buffer = []
 
+      @row_buffer = []
       @done = false
       @open = true
     end
@@ -78,7 +78,7 @@ module Impala
       return if @done
 
       begin
-        res = @service.fetch(@handle, false, @buffer_length)
+        res = @service.fetch(@handle, false, BUFFER_SIZE)
       rescue Protocol::Beeswax::BeeswaxException => e
         @closed = true
         raise CursorError.new("Cursor has expired or been closed")
