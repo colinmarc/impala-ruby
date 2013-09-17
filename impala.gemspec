@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{A ruby client for Cloudera's Impala}
   gem.homepage      = "https://github.com/colinmarc/impala-ruby"
 
-  gem.add_dependency('thrift', '~> 0.9')
+  gem.add_dependency('thrift', '~> 0.9.1')
 
   gem.add_development_dependency('rake')
   gem.add_development_dependency('eden')
