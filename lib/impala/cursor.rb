@@ -14,6 +14,8 @@ module Impala
       @row_buffer = []
       @done = false
       @open = true
+
+      fetch_more
     end
 
     def inspect
