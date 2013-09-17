@@ -14,7 +14,7 @@
 
 namespace cpp impala
 namespace java com.cloudera.impala.thrift
-namespace rb Impala.Protocol
+namespace rb impala.protocol
 
 enum TStatusCode {
   OK,
@@ -22,6 +22,7 @@ enum TStatusCode {
   ANALYSIS_ERROR,
   NOT_IMPLEMENTED_ERROR,
   RUNTIME_ERROR,
+  MEM_LIMIT_EXCEEDED,
   INTERNAL_ERROR
 }
 

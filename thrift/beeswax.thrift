@@ -21,7 +21,7 @@
 namespace java com.cloudera.beeswax.api
 namespace py beeswaxd
 namespace cpp beeswax
-namespace rb Impala.Protocol.Beeswax
+namespace rb impala.protocol.beeswax
 
 include "hive_metastore.thrift"
 
