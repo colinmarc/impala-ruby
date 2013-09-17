@@ -16,15 +16,19 @@ def connect
   Impala.connect(host, port)
 end
 
-describe 'connected tests' do
+describe 'basic connected tests' do
   before do
     skip unless IMPALA_SERVER
     @connection = connect
   end
 
-  it 'can successfully connect' do
+  it 'can connect' do
     assert_instance_of(Impala::Connection, @connection)
     assert(@connection.open?, "the connection should be open")
+  end
+
+  it 'can refresh the catalog' do
+    @connection.refresh
   end
 
   it 'can run a basic query' do
@@ -55,21 +59,97 @@ describe 'connected tests' do
   it 'can successfully refresh the metadata store' do
     ret = @connection.refresh
   end
+end
 
-  # TODO: this test sucks because there's no way to get multiple records
-  # with a literal select. perhaps there should be importable test data?
-  it 'can get a cursor and fetch one row at a time' do
-    cursor = @connection.execute('SELECT 1 AS a')
-    assert_instance_of(Impala::Cursor, cursor, "the result should be a cursor")
-
-    row = cursor.fetch_row
-    assert_equal({:a=>1}, row, "the row should be a hash")
-
-    assert_equal(false, cursor.has_more?, "has_more? should be false")
-    assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
+describe 'with a test database' do
+  before do
+    @database = '_impala_ruby_test'
+    @connection.query("CREATE DATABASE IF NOT EXISTS #{@database}")
   end
 
-  it 'can successfully run a "use" query' do
-    @connection.query('USE foo')
+  after do
+    @connection.query('DROP DATABASE IF EXISTS _impala_ruby_test')
+  end
+
+  it 'can use the database' do
+    @connection.query("USE #{@database}")
+    @connection.query("USE default")
+  end
+
+  describe 'and a test table' do
+    before do
+      @table = "#{@database}.foobar"
+      @connection.query("CREATE TABLE #{@table} (i INT)")
+    end
+
+    after do
+      @connection.query("DROP TABLE #{@table}")
+    end
+
+    it 'deals with empty tables correctly when using #query' do
+      res = @connection.query("SELECT * FROM #{@table}")
+      assert_equal([], res, "the result set should be empty")
+    end
+
+    it 'deals with empty tables correctly when using a cursor' do
+      cursor = @connection.execute("SELECT * FROM #{@table}")
+      assert_equal(false, cursor.has_more?, "has_more? should be false")
+      assert_nil(cursor.fetch_row, "calls to fetch_row should be nil")
+    end
+
+    describe 'with data' do
+      before do
+        @connection.query("INSERT INTO #{@table} (i) SELECT 1")
+        @connection.query("INSERT INTO #{@table} (i) SELECT 1")
+        @connection.query("INSERT INTO #{@table} (i) SELECT 1")
+      end
+
+      it 'can insert into the table' do
+        @connection.query("INSERT INTO #{@table} (i) SELECT 2")
+      end
+
+      it 'can select from the table using #query' do
+        res = @connection.query("SELECT * FROM #{@table}")
+        assert_equal([{:i => 1}, {:i => 1}, {:i => 1}], res)
+      end
+
+      it 'can create a cursor and fetch one row at a time' do
+        cursor = @connection.execute("SELECT * FROM #{@table}")
+        assert_instance_of(Impala::Cursor, cursor, "the result should be a cursor")
+
+        3.times do
+          row = cursor.fetch_row
+          assert_equal({:i=>1}, row, "the row should be a hash with the correct result")
+        end
+
+        assert_equal(false, cursor.has_more?, "has_more? should be false")
+        assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
+      end
+
+      it 'can use a cursor to deal with lots of data' do
+        10.times { @connection.query("INSERT INTO #{@table} SELECT * FROM #{@table}") }
+        @connection.query("INSERT INTO #{@table} (i) SELECT 1")
+        count = @connection.query("SELECT COUNT(*) as n from #{@table}")[0][:n]
+        assert(count > Impala::Cursor::BUFFER_SIZE) # otherwise the test is pointless
+
+        cursor = @connection.execute("SELECT * FROM #{@table}")
+        assert_instance_of(Impala::Cursor, cursor, "the result should be a cursor")
+
+        # fetch one to fill the buffer
+        row = cursor.fetch_row
+        assert_equal({:i=>1}, row, "the row should be a hash with the correct result")
+
+        buffer_size = cursor.instance_variable_get('@row_buffer').size
+        assert_equal(Impala::Cursor::BUFFER_SIZE - 1, buffer_size, "it should only buffer #{Impala::Cursor::BUFFER_SIZE} rows into memory")
+
+        (count - 1).times do
+          row = cursor.fetch_row
+          assert_equal({:i=>1}, row, "the row should be a hash with the correct result")
+        end
+
+        assert_equal(false, cursor.has_more?, "has_more? should be false")
+        assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
+      end
+    end
   end
 end
