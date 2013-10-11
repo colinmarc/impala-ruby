@@ -156,6 +156,12 @@ describe 'connected tests' do
           assert_equal(false, cursor.has_more?, "has_more? should be false")
           assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
         end
+
+        it 'can handle interspersed NULL values' do
+          @connection.query("INSERT INTO #{@table} (i) SELECT NULL")
+          res = @connection.query("SELECT * FROM #{@table} ORDER BY i DESC LIMIT 4")
+          assert_equal([{:i => 1}, {:i => 1}, {:i => 1}, {:i => nil}], res)
+        end
       end
     end
   end
