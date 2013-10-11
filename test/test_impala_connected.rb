@@ -62,11 +62,6 @@ describe 'connected tests' do
       assert_equal(nil, ret.first[:nothing], "the result should be nil")
     end
 
-    it 'can handle the string "NULL"' do
-      ret = @connection.query('SELECT "NULL" as something')
-      assert_instance_of(String, ret.first[:something], "the result should be a string")
-    end
-
     it 'can successfully refresh the metadata store' do
       ret = @connection.refresh
     end

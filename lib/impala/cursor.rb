@@ -108,7 +108,7 @@ module Impala
     end
 
     def convert_raw_value(value, schema)
-      return nil if value == 'NULL' && schema.type == 'null'
+      return nil if value == 'NULL'
 
       case schema.type
       when 'string'
