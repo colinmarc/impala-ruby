@@ -43,18 +43,28 @@ describe 'connected tests' do
     end
 
     it 'can handle double values' do
-      ret = @connection.query("SELECT 1.23 AS foo")
+      ret = @connection.query('SELECT 1.23 AS foo')
       assert_equal([{:foo=>1.23}], ret, "the result should be a float")
     end
 
     it 'can handle float values' do
-      ret = @connection.query("SELECT CAST(1.23 AS float) as foo")
+      ret = @connection.query('SELECT CAST(1.23 AS float) as foo')
       assert_instance_of(Float, ret.first[:foo], "the result should be a float")
     end
 
     it 'can handle timestamp values' do
-      ret = @connection.query("SELECT NOW() AS foo")
+      ret = @connection.query('SELECT NOW() AS foo')
       assert_instance_of(Time, ret.first[:foo])
+    end
+
+    it 'can handle null values' do
+      ret = @connection.query('SELECT NULL AS nothing')
+      assert_equal(nil, ret.first[:nothing])
+    end
+
+    it 'can handle the string "NULL"' do
+      ret = @connection.query('SELECT "NULL" as something')
+      assert_instance_of(String, ret.first[:something])
     end
 
     it 'can successfully refresh the metadata store' do
