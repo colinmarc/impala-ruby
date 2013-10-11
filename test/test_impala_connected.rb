@@ -69,7 +69,7 @@ describe 'connected tests' do
     end
 
     after do
-      @connection.query('DROP DATABASE IF EXISTS _impala_ruby_test')
+      @connection.query("DROP DATABASE IF EXISTS #{@database}") if @connection
     end
 
     it 'can use the database' do
@@ -84,7 +84,7 @@ describe 'connected tests' do
       end
 
       after do
-        @connection.query("DROP TABLE #{@table}")
+        @connection.query("DROP TABLE #{@table}") if @connection
       end
 
       it 'deals with empty tables correctly when using #query' do
