@@ -54,17 +54,17 @@ describe 'connected tests' do
 
     it 'can handle timestamp values' do
       ret = @connection.query('SELECT NOW() AS foo')
-      assert_instance_of(Time, ret.first[:foo])
+      assert_instance_of(Time, ret.first[:foo], "the result should be a timestamp")
     end
 
     it 'can handle null values' do
       ret = @connection.query('SELECT NULL AS nothing')
-      assert_equal(nil, ret.first[:nothing])
+      assert_equal(nil, ret.first[:nothing], "the result should be nil")
     end
 
     it 'can handle the string "NULL"' do
       ret = @connection.query('SELECT "NULL" as something')
-      assert_instance_of(String, ret.first[:something])
+      assert_instance_of(String, ret.first[:something], "the result should be a string")
     end
 
     it 'can successfully refresh the metadata store' do
