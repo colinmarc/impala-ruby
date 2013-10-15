@@ -32,6 +32,10 @@ describe 'connected tests' do
       @connection.refresh
     end
 
+    it 'can refresh metadata' do
+      @connection.query('invalidate metadata')
+    end
+
     it 'can run a basic query' do
       ret = @connection.query('SELECT "foo" AS foo')
       assert_equal([{:foo=>'foo'}], ret, "the result should be a list of hashes")
@@ -114,6 +118,11 @@ describe 'connected tests' do
           @connection.query("INSERT INTO #{@table} (i) SELECT 1")
           @connection.query("INSERT INTO #{@table} (i) SELECT 1")
         end
+        
+        it 'can handle the keywoard "with"' do
+          res = @connection.query("with bar as (select * from #{@table}) select * from bar")
+          assert_equal([{:i => 1}, {:i => 1}, {:i => 1}], res)
+        end
 
         it 'can insert into the table' do
           @connection.query("INSERT INTO #{@table} (i) SELECT 2")
@@ -162,6 +171,7 @@ describe 'connected tests' do
           assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
         end
       end
+      
     end
   end
 end
