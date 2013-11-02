@@ -53,7 +53,8 @@ module Impala
     # load the entire result set into memory, so if you're dealing with lots
     # of rows, {#execute} may work better.
     # @param [String] query the query you want to run
-    # @param [Hash] opt the option such as "hadoop_user" and "configuration"
+    # @option opt [String] :hadoop_user the user runs the query
+    # @option opt [Hash] :configuration the configuration used as a query_option
     # @return [Array<Hash>] an array of hashes, one for each row.
     def query(raw_query, opt = {})
       execute(raw_query, opt).fetch_all
@@ -61,7 +62,8 @@ module Impala
 
     # Perform a query and return a cursor for iterating over the results.
     # @param [String] query the query you want to run
-    # @param [Hash] opt the option such as "hadoop_user" and "configuration"
+    # @option opt [String] :hadoop_user the user runs the query
+    # @option opt [Hash] :configuration the configuration used as a query_option
     # @return [Cursor] a cursor for the result rows
     def execute(raw_query, opt = {})
       raise ConnectionError.new("Connection closed") unless open?
@@ -91,7 +93,12 @@ module Impala
       query = Protocol::Beeswax::Query.new
       query.query = sanitized_query
       query.hadoop_user = opt[:hadoop_user] if opt[:hadoop_user]
-      query.configuration = opt[:configuration] if opt[:configuration]
+      query.configuration =
+        if opt[:configuration]
+          opt[:configuration].map do |key, value|
+            "#{key}=#{value}"
+          end
+        end
       @service.query(query)
     end
 

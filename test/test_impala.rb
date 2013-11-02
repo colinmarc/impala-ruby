@@ -61,4 +61,44 @@ describe Impala::Connection do
       assert_raises(StandardError) { @connection.send(:wait_for_result, handle) }
     end
   end
+
+  describe '#execute' do
+    before do
+      Impala::Connection.any_instance.stubs(:open)
+      Impala::Cursor.stubs(:new)
+      @connection = Impala::Connection.new('test', 1234)
+      @connection.stubs(:open? => true, :sanitize_query => 'sanitized_query', :wait_for_result => nil)
+    end
+
+    it 'should call Protocol::ImpalaService::Client#query with the sanitized query' do
+      query = Impala::Protocol::Beeswax::Query.new
+      query.query = 'sanitized_query'
+
+      @service = stub(:query)
+      @service.expects(:query).with(query).once
+      @connection.instance_variable_set('@service', @service)
+
+      @connection.execute('query')
+    end
+
+    it 'should call Protocol::ImpalaService::Client#query with the hadoop_user and configuration if passed as parameter' do
+      query = Impala::Protocol::Beeswax::Query.new
+      query.query = 'sanitized_query'
+      query.hadoop_user = 'impala'
+      query.configuration = %w|num_scanner_threads=8 mem_limit=3221225472|
+
+      @service = stub(:query)
+      @service.expects(:query).with(query).once
+      @connection.instance_variable_set('@service', @service)
+
+      opt = {
+        :hadoop_user => 'impala',
+        :configuration => {
+          :num_scanner_threads => 8,
+          :mem_limit => 3221225472
+        }
+      }
+      @connection.execute('query', opt)
+    end
+  end
 end
