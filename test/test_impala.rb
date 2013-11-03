@@ -73,6 +73,7 @@ describe Impala::Connection do
     it 'should call Protocol::ImpalaService::Client#query with the sanitized query' do
       query = Impala::Protocol::Beeswax::Query.new
       query.query = 'sanitized_query'
+      query.configuration = []
 
       @service = stub(:query)
       @service.expects(:query).with(query).once
@@ -85,18 +86,16 @@ describe Impala::Connection do
       query = Impala::Protocol::Beeswax::Query.new
       query.query = 'sanitized_query'
       query.hadoop_user = 'impala'
-      query.configuration = %w|num_scanner_threads=8 mem_limit=3221225472|
+      query.configuration = %w|NUM_SCANNER_THREADS=8 MEM_LIMIT=3221225472|
 
       @service = stub(:query)
       @service.expects(:query).with(query).once
       @connection.instance_variable_set('@service', @service)
 
       opt = {
-        :hadoop_user => 'impala',
-        :configuration => {
-          :num_scanner_threads => 8,
-          :mem_limit => 3221225472
-        }
+        :user => 'impala',
+        :num_scanner_threads => 8,
+        :mem_limit => 3221225472
       }
       @connection.execute('query', opt)
     end

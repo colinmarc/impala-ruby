@@ -53,23 +53,25 @@ module Impala
     # load the entire result set into memory, so if you're dealing with lots
     # of rows, {#execute} may work better.
     # @param [String] query the query you want to run
-    # @option opt [String] :hadoop_user the user runs the query
-    # @option opt [Hash] :configuration the configuration used as a query_option
+    # @param [Hash] query_options the options to set user and configuration
+    #   except for :user, see TImpalaQueryOptions in ImpalaService.thrift
+    # @option query_options [String] :user the user runs the query
     # @return [Array<Hash>] an array of hashes, one for each row.
-    def query(raw_query, opt = {})
-      execute(raw_query, opt).fetch_all
+    def query(raw_query, query_options = {})
+      execute(raw_query, query_options).fetch_all
     end
 
     # Perform a query and return a cursor for iterating over the results.
     # @param [String] query the query you want to run
-    # @option opt [String] :hadoop_user the user runs the query
-    # @option opt [Hash] :configuration the configuration used as a query_option
+    # @param [Hash] query_options the options to set user and configuration
+    #   except for :user, see TImpalaQueryOptions in ImpalaService.thrift
+    # @option query_options [String] :user the user runs the query
     # @return [Cursor] a cursor for the result rows
-    def execute(raw_query, opt = {})
+    def execute(raw_query, query_options = {})
       raise ConnectionError.new("Connection closed") unless open?
 
       query = sanitize_query(raw_query)
-      handle = send_query(query, opt)
+      handle = send_query(query, query_options)
 
       wait_for_result(handle)
       Cursor.new(handle, @service)
@@ -89,16 +91,13 @@ module Impala
       ([command] + words[1..-1]).join(' ')
     end
 
-    def send_query(sanitized_query, opt = {})
+    def send_query(sanitized_query, query_options)
       query = Protocol::Beeswax::Query.new
       query.query = sanitized_query
-      query.hadoop_user = opt[:hadoop_user] if opt[:hadoop_user]
-      query.configuration =
-        if opt[:configuration]
-          opt[:configuration].map do |key, value|
-            "#{key}=#{value}"
-          end
-        end
+      query.hadoop_user = query_options.delete(:user) if query_options[:user]
+      query.configuration = query_options.map do |key, value|
+        "#{key.upcase}=#{value}"
+      end
       @service.query(query)
     end
 
