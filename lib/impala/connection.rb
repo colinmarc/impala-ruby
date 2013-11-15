@@ -2,7 +2,7 @@ module Impala
   # This object represents a connection to an Impala server. It can be used to
   # perform queries on the database.
   class Connection
-    SLEEP_INTERVAL = 0.1
+    LOG_CONTEXT_ID = "impala-ruby"
 
     # Don't instantiate Connections directly; instead, use {Impala.connect}.
     def initialize(host, port)
@@ -73,7 +73,7 @@ module Impala
       query = sanitize_query(raw_query)
       handle = send_query(query, query_options)
 
-      wait_for_result(handle)
+      check_result(handle)
       Cursor.new(handle, @service)
     end
 
@@ -94,25 +94,20 @@ module Impala
     def send_query(sanitized_query, query_options)
       query = Protocol::Beeswax::Query.new
       query.query = sanitized_query
+
       query.hadoop_user = query_options.delete(:user) if query_options[:user]
       query.configuration = query_options.map do |key, value|
         "#{key.upcase}=#{value}"
       end
-      @service.query(query)
+
+      @service.executeAndWait(query, LOG_CONTEXT_ID)
     end
 
-    def wait_for_result(handle)
-      #TODO select here, or something
-      while true
-        state = @service.get_state(handle)
-        if state == Protocol::Beeswax::QueryState::FINISHED
-          break
-        elsif state == Protocol::Beeswax::QueryState::EXCEPTION
-          close_handle(handle)
-          raise ConnectionError.new("The query was aborted")
-        end
-
-        sleep(SLEEP_INTERVAL)
+    def check_result(handle)
+      state = @service.get_state(handle)
+      if state == Protocol::Beeswax::QueryState::EXCEPTION
+        close_handle(handle)
+        raise ConnectionError.new("The query was aborted")
       end
     rescue
       close_handle(handle)

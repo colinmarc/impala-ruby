@@ -46,7 +46,7 @@ describe Impala::Connection do
     end
   end
 
-  describe '#wait_for_result' do
+  describe '#check_result' do
     before do
       Impala::Connection.any_instance.stubs(:open)
       @connection = Impala::Connection.new('test', 1234)
@@ -58,7 +58,7 @@ describe Impala::Connection do
       handle = stub()
       @service.expects(:close).with(handle).once
       @service.expects(:get_state).raises(StandardError)
-      assert_raises(StandardError) { @connection.send(:wait_for_result, handle) }
+      assert_raises(StandardError) { @connection.send(:check_result, handle) }
     end
   end
 
@@ -67,29 +67,29 @@ describe Impala::Connection do
       Impala::Connection.any_instance.stubs(:open)
       Impala::Cursor.stubs(:new)
       @connection = Impala::Connection.new('test', 1234)
-      @connection.stubs(:open? => true, :sanitize_query => 'sanitized_query', :wait_for_result => nil)
+      @connection.stubs(:open? => true, :sanitize_query => 'sanitized_query', :check_result => nil)
     end
 
-    it 'should call Protocol::ImpalaService::Client#query with the sanitized query' do
+    it 'should call Protocol::ImpalaService::Client#executeAndWait with the sanitized query' do
       query = Impala::Protocol::Beeswax::Query.new
       query.query = 'sanitized_query'
       query.configuration = []
 
-      @service = stub(:query)
-      @service.expects(:query).with(query).once
+      @service = stub()
+      @service.expects(:executeAndWait).with(query, Impala::Connection::LOG_CONTEXT_ID).once
       @connection.instance_variable_set('@service', @service)
 
       @connection.execute('query')
     end
 
-    it 'should call Protocol::ImpalaService::Client#query with the hadoop_user and configuration if passed as parameter' do
+    it 'should call Protocol::ImpalaService::Client#executeAndWait with the hadoop_user and configuration if passed as parameter' do
       query = Impala::Protocol::Beeswax::Query.new
       query.query = 'sanitized_query'
       query.hadoop_user = 'impala'
       query.configuration = %w|NUM_SCANNER_THREADS=8 MEM_LIMIT=3221225472|
 
-      @service = stub(:query)
-      @service.expects(:query).with(query).once
+      @service = stub()
+      @service.expects(:executeAndWait).with(query, Impala::Connection::LOG_CONTEXT_ID).once
       @connection.instance_variable_set('@service', @service)
 
       opt = {

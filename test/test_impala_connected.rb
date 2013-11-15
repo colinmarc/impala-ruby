@@ -121,7 +121,7 @@ describe 'connected tests' do
           @connection.query("INSERT INTO #{@table} (i) SELECT 1")
           @connection.query("INSERT INTO #{@table} (i) SELECT 1")
         end
-        
+
         it 'can handle the keywoard "with"' do
           res = @connection.query("with bar as (select * from #{@table}) select * from bar")
           assert_equal([{:i => 1}, {:i => 1}, {:i => 1}], res)
@@ -180,7 +180,7 @@ describe 'connected tests' do
           assert_equal([{:i => 1}, {:i => 1}, {:i => 1}, {:i => nil}], res)
         end
       end
-      
+
     end
   end
 end
