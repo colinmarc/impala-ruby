@@ -41,6 +41,14 @@ describe 'connected tests' do
       assert_equal([{:foo=>'foo'}], ret, "the result should be a list of hashes")
     end
 
+    it 'can run a basic query with some query options as specified user' do
+      ret = @connection.query('SELECT "foo" AS foo',
+                              :user => 'someoneelse',
+                              :mem_limit => 1234567890,
+                              :max_scan_range_length => 1024 * 1024 * 1024)
+      assert_equal([{:foo=>'foo'}], ret, "the result should be a list of hashes")
+    end
+
     it 'can handle boolean values' do
       ret = @connection.query('SELECT TRUE AS foo')
       assert_equal([{:foo=>true}], ret, "the result should be a bool")
