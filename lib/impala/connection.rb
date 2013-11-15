@@ -43,7 +43,7 @@ module Impala
       @connected
     end
 
-    # Refresh the metadata store
+    # Refresh the metadata store.
     def refresh
       raise ConnectionError.new("Connection closed") unless open?
       @service.ResetCatalog
