@@ -11,6 +11,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{A ruby client for Cloudera's Impala}
   gem.summary       = %q{A ruby client for Cloudera's Impala}
   gem.homepage      = "https://github.com/colinmarc/impala-ruby"
+  gem.licencse      = 'MIT'
 
   gem.add_dependency('thrift', '~> 0.9.1')
 
