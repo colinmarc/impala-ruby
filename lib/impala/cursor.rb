@@ -99,7 +99,7 @@ module Impala
       row = {}
       fields = raw.split(metadata.delim)
 
-      fields.zip(metadata.schema.fieldSchemas).each do |raw_value, schema|
+      metadata.schema.fieldSchemas.zip(fields).each do |schema, raw_value|
         value = convert_raw_value(raw_value, schema)
         row[schema.name.to_sym] = value
       end
