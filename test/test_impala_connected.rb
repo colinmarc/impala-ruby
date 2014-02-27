@@ -179,6 +179,10 @@ describe 'connected tests' do
           res = @connection.query("SELECT * FROM #{@table} ORDER BY i DESC LIMIT 4")
           assert_equal([{:i => 1}, {:i => 1}, {:i => 1}, {:i => nil}], res)
         end
+
+        it 'can alter table add column' do
+          @connection.query("ALTER TABLE #{@table} ADD COLUMNS (new INT)")
+        end
       end
 
     end

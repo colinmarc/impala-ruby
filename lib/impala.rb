@@ -14,7 +14,7 @@ require 'impala/cursor'
 require 'impala/connection'
 
 module Impala
-  KNOWN_COMMANDS = ['select', 'insert', 'show', 'describe', 'use', 'explain', 'create', 'drop', 'invalidate', 'with']
+  KNOWN_COMMANDS = ['select', 'insert', 'show', 'describe', 'use', 'explain', 'create', 'drop', 'invalidate', 'with', 'alter']
   DEFAULT_HOST = 'localhost'
   DEFAULT_PORT = 21000
   class InvalidQueryError < StandardError; end
