@@ -131,5 +131,9 @@ module Impala
         raise ParsingError.new("Unknown type: #{schema.type}")
       end
     end
+
+    def runtime_profile
+      @service.GetRuntimeProfile(@handle)
+    end
   end
 end
