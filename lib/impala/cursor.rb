@@ -70,6 +70,10 @@ module Impala
       !@done || !@row_buffer.empty?
     end
 
+    def runtime_profile
+      @service.GetRuntimeProfile(@handle)
+    end
+
     private
 
     def metadata
@@ -130,10 +134,6 @@ module Impala
       else
         raise ParsingError.new("Unknown type: #{schema.type}")
       end
-    end
-
-    def runtime_profile
-      @service.GetRuntimeProfile(@handle)
     end
   end
 end
