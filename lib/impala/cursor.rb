@@ -121,7 +121,7 @@ module Impala
         else
           raise ParsingError.new("Invalid value for boolean: #{value}")
         end
-      when 'tinyint', 'int', 'bigint'
+      when 'tinyint', 'smallint', 'int', 'bigint'
         value.to_i
       when 'double', 'float'
         value.to_f

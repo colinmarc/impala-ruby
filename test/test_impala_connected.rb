@@ -59,6 +59,11 @@ describe 'connected tests' do
       assert_equal([{:foo=>1.23}], ret, "the result should be a float")
     end
 
+    it 'can handle smallint values' do
+      ret = @connection.query('SELECT CAST(123 AS smallint) AS foo')
+      assert_equal([{:foo=>123}], ret, "the result should be an integer")
+    end
+
     it 'can handle float values' do
       ret = @connection.query('SELECT CAST(1.23 AS float) as foo')
       assert_instance_of(Float, ret.first[:foo], "the result should be a float")
