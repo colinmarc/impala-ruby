@@ -188,7 +188,7 @@ describe 'connected tests' do
         it 'can handle interspersed NULL values' do
           @connection.query("INSERT INTO #{@table} (i) SELECT NULL")
           res = @connection.query("SELECT * FROM #{@table} ORDER BY i DESC LIMIT 4")
-          assert_equal([{:i => 1}, {:i => 1}, {:i => 1}, {:i => nil}], res)
+          assert_equal([{:i => nil}, {:i => 1}, {:i => 1}, {:i => 1}], res)
         end
 
         it 'can alter table add column' do
