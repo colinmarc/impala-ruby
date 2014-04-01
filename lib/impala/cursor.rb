@@ -70,6 +70,10 @@ module Impala
       !@done || !@row_buffer.empty?
     end
 
+    def runtime_profile
+      @service.GetRuntimeProfile(@handle)
+    end
+
     private
 
     def metadata

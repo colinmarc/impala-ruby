@@ -82,6 +82,12 @@ describe 'connected tests' do
     it 'can successfully refresh the metadata store' do
       ret = @connection.refresh
     end
+
+    it 'can get the runtime profile from a cursor' do
+      cursor = @connection.execute('SELECT NOW() as foo')
+      ret = cursor.runtime_profile
+      assert_instance_of(String, ret, "the result should be a string")
+    end
   end
 
   describe 'with a test database' do
