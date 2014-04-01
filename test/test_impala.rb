@@ -42,7 +42,6 @@ describe Impala::Connection do
 
     it 'should reject empty or invalid queries' do
       assert_raises(Impala::InvalidQueryError) { @connection.send(:sanitize_query, '')}
-      assert_raises(Impala::InvalidQueryError) { @connection.send(:sanitize_query, 'HERRO herro herro')}
     end
   end
 
