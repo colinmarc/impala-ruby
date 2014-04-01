@@ -108,6 +108,7 @@ describe 'connected tests' do
     describe 'and a test table' do
       before do
         @table = "#{@database}.foobar"
+        @connection.query("DROP TABLE IF EXISTS #{@table}")
         @connection.query("CREATE TABLE #{@table} (i INT)")
       end
 
