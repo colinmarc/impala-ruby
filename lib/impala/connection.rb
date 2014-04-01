@@ -84,10 +84,6 @@ module Impala
       raise InvalidQueryError.new("Empty query") if words.empty?
 
       command = words.first.downcase
-      if !KNOWN_COMMANDS.include?(command)
-        raise InvalidQueryError.new("Unrecognized command: '#{words.first}'")
-      end
-
       ([command] + words[1..-1]).join(' ')
     end
 
