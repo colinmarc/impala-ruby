@@ -90,7 +90,7 @@ module Impala
       begin
         res = @service.fetch(@handle, false, BUFFER_SIZE)
       rescue Protocol::Beeswax::BeeswaxException => e
-        @closed = true
+        @open = false
         raise CursorError.new("Cursor has expired or been closed")
       end
 
