@@ -99,19 +99,4 @@ describe Impala::Connection do
       @connection.execute('query', opt)
     end
   end
-
-  describe '#query' do
-    before do
-      Impala::Cursor.any_instance.stubs(:fetch_more)
-      @cursor = Impala::Cursor.new(nil, nil)
-      Impala::Connection.any_instance.stubs(:open)
-      @connection = Impala::Connection.new('test', 1234)
-      @connection.stubs(:open? => true, :sanitize_query => 'sanitized_query', :check_result => nil, :execute => @cursor)
-    end
-
-    it 'should close the cursor after returning a value' do
-      @cursor.expects(:close).once
-      @connection.query('query')
-    end
-  end
 end

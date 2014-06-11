@@ -159,6 +159,7 @@ describe 'connected tests' do
 
           assert_equal(false, cursor.has_more?, "has_more? should be false")
           assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
+          assert_equal(false, cursor.open?, "the cursor should be closed once it has returned all the rows")
         end
 
         it 'can use a cursor to deal with lots of data' do
@@ -184,6 +185,7 @@ describe 'connected tests' do
 
           assert_equal(false, cursor.has_more?, "has_more? should be false")
           assert_nil(cursor.fetch_row, "subsequent calls to fetch_row should be nil")
+          assert_equal(false, cursor.open?, "the cursor should be closed once it has returned all the rows")
         end
 
         it 'can handle interspersed NULL values' do

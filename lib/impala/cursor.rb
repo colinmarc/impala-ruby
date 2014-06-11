@@ -33,8 +33,6 @@ module Impala
     #    left
     # @see #fetch_all
     def fetch_row
-      raise CursorError.new("Cursor has expired or been closed") unless @open
-
       if @row_buffer.empty?
         if @done
           return nil
@@ -85,7 +83,7 @@ module Impala
     end
 
     def fetch_batch
-      return if @done
+      raise CursorError.new("Cursor has expired or been closed") unless @open
 
       begin
         res = @service.fetch(@handle, false, BUFFER_SIZE)
@@ -96,7 +94,11 @@ module Impala
 
       rows = res.data.map { |raw| parse_row(raw) }
       @row_buffer.concat(rows)
-      @done = true unless res.has_more
+
+      unless res.has_more
+        @done = true
+        close
+      end
     end
 
     def parse_row(raw)

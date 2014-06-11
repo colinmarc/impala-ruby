@@ -58,10 +58,7 @@ module Impala
     # @option query_options [String] :user the user runs the query
     # @return [Array<Hash>] an array of hashes, one for each row.
     def query(raw_query, query_options = {})
-      cursor = execute(raw_query, query_options)
-      cursor.fetch_all
-    ensure
-      cursor.close
+      execute(raw_query, query_options).fetch_all
     end
 
     # Perform a query and return a cursor for iterating over the results.
