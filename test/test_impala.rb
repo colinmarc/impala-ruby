@@ -1,6 +1,6 @@
 require 'impala'
 require 'minitest/autorun'
-require 'mocha'
+require 'mocha/setup'
 
 describe 'Impala.connect' do
   before do
