@@ -1,5 +1,7 @@
 # impala-ruby
 
+![build](https://travis-ci.org/colinmarc/impala-ruby.svg?branch=master)
+
 This is a ruby client for [Cloudera Impala][1]. You use it like this:
 
 ```ruby
