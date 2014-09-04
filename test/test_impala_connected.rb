@@ -55,7 +55,7 @@ describe 'connected tests' do
     end
 
     it 'can handle double values' do
-      ret = @connection.query('SELECT 1.23 AS foo')
+      ret = @connection.query('SELECT CAST(1.23 AS double) AS foo')
       assert_equal([{:foo=>1.23}], ret, "the result should be a float")
     end
 
@@ -66,6 +66,11 @@ describe 'connected tests' do
 
     it 'can handle float values' do
       ret = @connection.query('SELECT CAST(1.23 AS float) as foo')
+      assert_instance_of(Float, ret.first[:foo], "the result should be a float")
+    end
+
+    it 'can handle decimal values' do
+      ret = @connection.query('SELECT CAST(1.5 AS decimal(9,4)) as foo')
       assert_instance_of(Float, ret.first[:foo], "the result should be a float")
     end
 
