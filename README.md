@@ -27,4 +27,14 @@ end
 conn.close
 ```
 
+To connect to a kerberos-enabled Impala (assuming you ran kinit):
+```
+conn = Impala.connect('host', 21000,
+               { :transport => :sasl,
+                 :sasl_params => {
+                   :mechanism => 'GSSAPI',
+                   :remote_host => 'host',
+                   :remote_principal => 'impala/host@REALM'}})
+```
+
 [1]: https://ccp.cloudera.com/display/IMPALA10BETADOC/Introducing+Cloudera+Impala

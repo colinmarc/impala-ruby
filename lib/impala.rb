@@ -29,8 +29,8 @@ module Impala
   #    finishes
   # @return [Connection] the open connection, or, if a block is
   #    passed, the return value of the block
-  def self.connect(host=DEFAULT_HOST, port=DEFAULT_PORT)
-    connection = Connection.new(host, port)
+  def self.connect(host=DEFAULT_HOST, port=DEFAULT_PORT, options={})
+    connection = Connection.new(host, port, options)
 
     if block_given?
       begin

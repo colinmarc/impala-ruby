@@ -8,6 +8,7 @@ require 'thrift'
 require 'status_types'
 require 'beeswax_types'
 require 'cli_service_types'
+require 'impala_sasl_client_transport'
 
 
 module Impala
