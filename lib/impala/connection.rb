@@ -4,11 +4,15 @@ module Impala
   class Connection
     LOG_CONTEXT_ID = "impala-ruby"
 
+    attr_accessor :host, :port
+
     # Don't instantiate Connections directly; instead, use {Impala.connect}.
-    def initialize(host, port)
+    def initialize(host, port, options={})
       @host = host
       @port = port
       @connected = false
+      options[:transport] ||= :buffered
+      @options = options
       open
     end
 
@@ -20,14 +24,42 @@ module Impala
     def open
       return if @connected
 
-      socket = Thrift::Socket.new(@host, @port)
-
-      @transport = Thrift::BufferedTransport.new(socket)
+      @transport = thrift_transport(host, port)
       @transport.open
 
       proto = Thrift::BinaryProtocol.new(@transport)
       @service = Protocol::ImpalaService::Client.new(proto)
       @connected = true
+    end
+
+    def thrift_transport(server, port)
+      case @options[:transport]
+      when :buffered
+        return Thrift::BufferedTransport.new(thrift_socket(server, port, @options[:timeout]))
+      when :sasl
+        return Thrift::ImpalaSaslClientTransport.new(thrift_socket(server, port, @options[:timeout]),
+                                               parse_sasl_params(@options[:sasl_params]))
+      else
+        raise "Unrecognised transport type '#{@options[:transport]}'"
+      end
+    end
+
+    def thrift_socket(server, port, timeout)
+      socket = Thrift::Socket.new(server, port)
+      socket.timeout = timeout
+      socket
+    end
+
+    # Processes SASL connection params and returns a hash with symbol keys or a nil
+    def parse_sasl_params(sasl_params)
+      # Symbilize keys in a hash
+      if sasl_params.kind_of?(Hash)
+        return sasl_params.inject({}) do |memo,(k,v)|
+          memo[k.to_sym] = v;
+          memo
+        end
+      end
+      return nil
     end
 
     # Close this connection. It can still be reopened with {#open}.
