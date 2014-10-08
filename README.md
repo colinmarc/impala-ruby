@@ -1,6 +1,6 @@
 # impala-ruby
 
-![build](https://travis-ci.org/colinmarc/impala-ruby.svg?branch=master) &nbsp; [![rubygems](https://badge.fury.io/rb/impala.svg)](http://rubygems.org/gems/impala)
+[![build](https://travis-ci.org/colinmarc/impala-ruby.svg?branch=master)](https://travis-ci.org/colinmarc/impala-ruby) &nbsp; [![rubygems](https://badge.fury.io/rb/impala.svg)](http://rubygems.org/gems/impala)
 
 This is a ruby client for [Cloudera Impala][1]. You use it like this:
 
