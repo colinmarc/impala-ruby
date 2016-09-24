@@ -5,9 +5,10 @@ module Impala
     LOG_CONTEXT_ID = "impala-ruby"
 
     # Don't instantiate Connections directly; instead, use {Impala.connect}.
-    def initialize(host, port)
+    def initialize(host, port, options={})
       @host = host
       @port = port
+      @options = options
       @connected = false
       open
     end
@@ -20,9 +21,16 @@ module Impala
     def open
       return if @connected
 
-      socket = Thrift::Socket.new(@host, @port)
+      socket = Thrift::Socket.new(@host, @port, @options[:timeout])
 
-      @transport = Thrift::BufferedTransport.new(socket)
+      if @options[:kerberos]
+        @transport = SASLTransport.new(socket, :GSSAPI, @options[:kerberos])
+      elsif @options[:sasl]
+        @transport = SASLTransport.new(socket, :PLAIN, @options[:sasl])
+      else
+        @transport = Thrift::BufferedTransport.new(socket)
+      end
+
       @transport.open
 
       proto = Thrift::BinaryProtocol.new(@transport)
