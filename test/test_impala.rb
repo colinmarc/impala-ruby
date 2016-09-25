@@ -4,7 +4,7 @@ require 'mocha/setup'
 
 describe 'Impala.connect' do
   before do
-    Thrift::Socket.expects(:new).with('host', 12345)
+    Thrift::Socket.expects(:new).with('host', 12345, nil)
     Thrift::BufferedTransport.expects(:new).once.returns(stub(:open => nil))
     Thrift::BinaryProtocol.expects(:new).once
     Impala::Protocol::ImpalaService::Client.expects(:new).once
