@@ -65,8 +65,8 @@ module Impala
     #   except for :user, see TImpalaQueryOptions in ImpalaService.thrift
     # @option query_options [String] :user the user runs the query
     # @return [Array<Hash>] an array of hashes, one for each row.
-    def query(raw_query, query_options = {})
-      execute(raw_query, query_options).fetch_all
+    def query(query, query_options = {})
+      execute(query, query_options).fetch_all
     end
 
     # Perform a query and return a cursor for iterating over the results.
@@ -75,29 +75,19 @@ module Impala
     #   except for :user, see TImpalaQueryOptions in ImpalaService.thrift
     # @option query_options [String] :user the user runs the query
     # @return [Cursor] a cursor for the result rows
-    def execute(raw_query, query_options = {})
+    def execute(query, query_options = {})
       raise ConnectionError.new("Connection closed") unless open?
 
-      query = sanitize_query(raw_query)
       handle = send_query(query, query_options)
-
       check_result(handle)
       Cursor.new(handle, @service)
     end
 
     private
 
-    def sanitize_query(raw_query)
-      words = raw_query.split
-      raise InvalidQueryError.new("Empty query") if words.empty?
-
-      command = words.first.downcase
-      ([command] + words[1..-1]).join(' ')
-    end
-
-    def send_query(sanitized_query, query_options)
+    def send_query(query_text, query_options)
       query = Protocol::Beeswax::Query.new
-      query.query = sanitized_query
+      query.query = query_text
 
       query.hadoop_user = query_options.delete(:user) if query_options[:user]
       query.configuration = query_options.map do |key, value|

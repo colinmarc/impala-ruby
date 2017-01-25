@@ -29,22 +29,6 @@ describe 'Impala.connect' do
 end
 
 describe Impala::Connection do
-  describe '#sanitize_query' do
-    before do
-      Impala::Connection.any_instance.stubs(:open)
-      @connection = Impala::Connection.new('test', 1234)
-    end
-
-    it 'should downcase the command but nothing else' do
-      query = 'SELECT blah FROM Blah'
-      assert_equal('select blah FROM Blah', @connection.send(:sanitize_query, query))
-    end
-
-    it 'should reject empty or invalid queries' do
-      assert_raises(Impala::InvalidQueryError) { @connection.send(:sanitize_query, '')}
-    end
-  end
-
   describe '#check_result' do
     before do
       Impala::Connection.any_instance.stubs(:open)
@@ -66,12 +50,12 @@ describe Impala::Connection do
       Impala::Connection.any_instance.stubs(:open)
       Impala::Cursor.stubs(:new)
       @connection = Impala::Connection.new('test', 1234)
-      @connection.stubs(:open? => true, :sanitize_query => 'sanitized_query', :check_result => nil)
+      @connection.stubs(:open? => true, :check_result => nil)
     end
 
-    it 'should call Protocol::ImpalaService::Client#executeAndWait with the sanitized query' do
+    it 'should call Protocol::ImpalaService::Client#executeAndWait with the query' do
       query = Impala::Protocol::Beeswax::Query.new
-      query.query = 'sanitized_query'
+      query.query = 'query'
       query.configuration = []
 
       @service = stub()
@@ -83,7 +67,7 @@ describe Impala::Connection do
 
     it 'should call Protocol::ImpalaService::Client#executeAndWait with the hadoop_user and configuration if passed as parameter' do
       query = Impala::Protocol::Beeswax::Query.new
-      query.query = 'sanitized_query'
+      query.query = 'query'
       query.hadoop_user = 'impala'
       query.configuration = %w|NUM_SCANNER_THREADS=8 MEM_LIMIT=3221225472|
 
